@@ -4,6 +4,11 @@
 Your task is to create a single-page application of a Task Management App.
 
 
+## Tech Stack
+
+**Client:** React, Fluent UI, DnD Kit, Formik, Axios, Tanstack React Query, Axios, Yup
+
+
 ## Installation
 
 Install with yarn
