@@ -12,23 +12,22 @@ import {
   Checkbox,
   CheckboxOnChangeData,
 } from '@fluentui/react-components';
-
-import { ITask } from '@/types/task.types';
-import { useDeleteTask } from '@/config/mutators';
+import { DeleteRegular } from '@fluentui/react-icons';
+import { useBulkDeleteTask } from '@/config/mutators';
 import { useToast } from '@/providers/ToastProvider';
 
 type Props = {
-  open: boolean;
-  setOpen: (value: boolean) => void;
-  item: ITask;
-  setItem: (value: null) => void;
+  ids: string[];
+  org: string;
+  setIds: (value: string[]) => void;
 };
 
-export const ModalDelete = ({ item, setItem, open, setOpen }: Props) => {
-  const { mutateAsync: performDeleteTask } = useDeleteTask();
+export const ModalBulkDelete = ({ ids, org, setIds }: Props) => {
+  const { mutateAsync: performBulkDeleteTask } = useBulkDeleteTask();
 
   const { notify } = useToast();
   const [checked, setChecked] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
 
   const handleChange = (
     _: React.ChangeEvent<HTMLInputElement>,
@@ -37,38 +36,41 @@ export const ModalDelete = ({ item, setItem, open, setOpen }: Props) => {
     setChecked(Boolean(data.checked));
   };
 
-  const handleDelete = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-
+  const handleBulkDelete = async () => {
     try {
-      await performDeleteTask({
-        id: item.id,
-        organizationId: item.organizationId,
+      await performBulkDeleteTask({
+        organizationId: org,
+        data: { ids },
       });
       notify('Task deleted successfully', 'success');
-      setOpen(false);
-      setItem(null);
+      setIds([]);
     } catch (error) {
       notify('Failed to delete task', 'error');
       console.log('Error deleting task:', error);
     }
   };
+
   return (
     <Dialog open={open} onOpenChange={(_, data) => setOpen(data.open)}>
+      <DialogTrigger disableButtonEnhancement>
+        <Button appearance="outline" icon={<DeleteRegular />}>
+          Bulk Delete
+        </Button>
+      </DialogTrigger>
       <DialogSurface>
         <DialogBody>
-          <DialogTitle>Delete this task?</DialogTitle>
+          <DialogTitle>Delete all task?</DialogTitle>
           <DialogContent>
             <p>
-              You're about to delete the task "{item?.title} that goes up to
-              lines". This will also delete all associated resources, including
-              files, subtasks, comments, and so forth. Please back up any
-              content you need before proceeding.
+              You're about to delete all task " that goes up to lines". This
+              will also delete all associated resources, including files,
+              subtasks, comments, and so forth. Please back up any content you
+              need before proceeding.
             </p>
             <Checkbox
               checked={checked}
               onChange={handleChange}
-              label="Yes, delete this task and all its associated resources"
+              label="Yes, delete all task and its associated resources"
             />
           </DialogContent>
           <DialogActions>
@@ -76,9 +78,9 @@ export const ModalDelete = ({ item, setItem, open, setOpen }: Props) => {
               <Button
                 disabled={!checked}
                 appearance="primary"
-                onClick={handleDelete}
+                onClick={handleBulkDelete}
               >
-                Delete
+                Delete All Task
               </Button>
             </DialogTrigger>
             <DialogTrigger disableButtonEnhancement>

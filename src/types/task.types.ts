@@ -14,3 +14,11 @@ export type ITask = {
   description: string;
   organizationId: string;
 };
+
+export interface IOrganizations {
+  id: string;
+  _ts: number;
+  _rid: string;
+  name: string;
+  _etag: string;
+}

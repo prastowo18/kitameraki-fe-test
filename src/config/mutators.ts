@@ -1,11 +1,20 @@
 import { AxiosError } from 'axios';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
+import {
+  bulkDeleteTask,
+  createTask,
+  deleteTask,
+  TaskRequest,
+  updateTask,
+} from './services/task.service';
+
 import { ErrorResponse } from './api';
 import { JsonResource, PaginatedResources } from './queries';
-import { bulkDeleteTask, deleteTask } from './services/task.service';
 
 import { ITask } from '@/types/task.types';
+import { IResponseBulkUpdate } from '@/types/form-config.types';
+import { updateBulkFormConf } from './services/form-config.service';
 
 interface DeleteTaskParams {
   id: string;
@@ -15,10 +24,42 @@ interface DeleteTaskParams {
 interface DeleteRequest {
   ids: string[];
 }
+
 interface BulkDeleteTaskParams {
   organizationId: string;
   data: DeleteRequest;
 }
+
+export interface BulkUpdateFormConfig {
+  id: string;
+  name: string;
+  label: string;
+  order: number;
+  options: string[];
+  required: boolean;
+  placeholder: string;
+  type: string;
+}
+
+export const useCreateTask = () => {
+  return useMutation<
+    JsonResource<ITask>,
+    AxiosError<ErrorResponse>,
+    TaskRequest
+  >({
+    mutationFn: (data: TaskRequest) => createTask(data),
+  });
+};
+
+export const useUpdateTask = () => {
+  return useMutation<
+    JsonResource<ITask>,
+    AxiosError<ErrorResponse>,
+    TaskRequest
+  >({
+    mutationFn: (data: TaskRequest) => updateTask(data),
+  });
+};
 
 export const useDeleteTask = () => {
   const queryClient = useQueryClient();
@@ -30,7 +71,6 @@ export const useDeleteTask = () => {
   >({
     mutationFn: (params: DeleteTaskParams) => deleteTask(params),
     onSuccess: (_, variables) => {
-      // invalidate semua query yg key utamanya '/tasks'
       queryClient.invalidateQueries({
         predicate: (query) => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -39,7 +79,6 @@ export const useDeleteTask = () => {
         },
       });
 
-      // update cache lokal biar UI langsung reflect
       queryClient.setQueriesData<PaginatedResources<ITask>>(
         {
           predicate: (query) => {
@@ -74,7 +113,6 @@ export const useBulkDeleteTask = () => {
     mutationFn: ({ organizationId, data }: BulkDeleteTaskParams) =>
       bulkDeleteTask({ organizationId }, data),
     onSuccess: (_, variables) => {
-      // invalidate semua query yg key utamanya '/tasks'
       queryClient.invalidateQueries({
         predicate: (query) => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -83,7 +121,6 @@ export const useBulkDeleteTask = () => {
         },
       });
 
-      // update cache lokal biar UI langsung reflect
       queryClient.setQueriesData<PaginatedResources<ITask>>(
         {
           predicate: (query) => {
@@ -106,5 +143,15 @@ export const useBulkDeleteTask = () => {
             : old
       );
     },
+  });
+};
+
+export const useBulkUpdateFormConf = () => {
+  return useMutation<
+    JsonResource<IResponseBulkUpdate>,
+    AxiosError<ErrorResponse>,
+    BulkUpdateFormConfig[]
+  >({
+    mutationFn: (data: BulkUpdateFormConfig[]) => updateBulkFormConf(data),
   });
 };

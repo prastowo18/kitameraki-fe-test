@@ -1,11 +1,9 @@
 import { format } from 'date-fns';
 
-import { Button } from '@fluentui/react-button';
-import { EditRegular } from '@fluentui/react-icons';
+import { DeleteRegular, EditRegular } from '@fluentui/react-icons';
 import { TableCellLayout } from '@fluentui/react-table';
-import { Badge, makeStyles } from '@fluentui/react-components';
+import { Badge, Button, makeStyles } from '@fluentui/react-components';
 
-import { ModalDelete } from './ModalDelete';
 import { DynamicColumn } from '../../../components/DynamicTable';
 
 import { ITask } from '@/types/task.types';
@@ -14,7 +12,15 @@ const useStyles = makeStyles({
   wrapper: { columnGap: '10px', display: 'flex', minWidth: 'min-content' },
 });
 
-export const useTaskTableColumns = (): DynamicColumn<ITask>[] => {
+interface Props {
+  setOpenModalDelete: (value: boolean, item: ITask) => void;
+  setOpenModalForm: (value: boolean, item: ITask) => void;
+}
+
+export const useTaskTableColumns = ({
+  setOpenModalDelete,
+  setOpenModalForm,
+}: Props): DynamicColumn<ITask>[] => {
   const styles = useStyles();
 
   return [
@@ -122,9 +128,13 @@ export const useTaskTableColumns = (): DynamicColumn<ITask>[] => {
             <Button
               icon={<EditRegular />}
               aria-label="Edit"
-              onClick={() => alert(`Edit ${item.id}`)}
+              onClick={() => setOpenModalForm(true, item)}
             />
-            <ModalDelete item={item} />
+            <Button
+              icon={<DeleteRegular />}
+              aria-label="Delete"
+              onClick={() => setOpenModalDelete(true, item)}
+            />
           </div>
         </TableCellLayout>
       ),

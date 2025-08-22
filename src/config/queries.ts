@@ -4,7 +4,10 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { ErrorResponse } from './api';
 import { getTask, GetTaskParams, getTasks } from './services/task.service';
 
-import { ITask } from '@/types/task.types';
+import { IOrganizations, ITask } from '@/types/task.types';
+import { getOrganizations } from './services/organizations.service';
+import { IFormConfig } from '@/types/form-config.types';
+import { getFormConfig } from './services/form-config.service';
 
 export interface PaginatedResources<T> {
   data: {
@@ -16,6 +19,18 @@ export interface PaginatedResources<T> {
         total: number;
       };
     };
+  };
+}
+
+export interface OrganizationResources<T> {
+  data: {
+    data: T[];
+  };
+}
+
+export interface FormConfigResources<T> {
+  data: {
+    data: T[];
   };
 }
 
@@ -38,10 +53,14 @@ export const getTasksQueryKey = (params?: GetTaskParams) => {
 };
 
 export const useTasks = (options?: QueryOptions<GetTaskParams>) => {
+  const enabled = !!options?.params?.organizationId;
+
   return useQuery<PaginatedResources<ITask>, AxiosError<ErrorResponse>>({
     queryKey: getTasksQueryKey(options?.params),
     queryFn: () => getTasks(options?.params),
     placeholderData: keepPreviousData,
+    staleTime: 0,
+    enabled,
   });
 };
 
@@ -49,5 +68,23 @@ export const useTask = (options?: QueryOptions<GetTaskParams>) => {
   return useQuery<JsonResource<ITask>, AxiosError<ErrorResponse>>({
     queryKey: ['/tasks/' + options.params.id],
     queryFn: () => getTask(options.params.id, options?.params),
+  });
+};
+
+export const useOrganizations = () => {
+  return useQuery<
+    OrganizationResources<IOrganizations>,
+    AxiosError<ErrorResponse>
+  >({
+    queryKey: ['/organizations'],
+    queryFn: () => getOrganizations(),
+  });
+};
+
+export const useFormConfig = ({ enabled }: { enabled: boolean }) => {
+  return useQuery<FormConfigResources<IFormConfig>, AxiosError<ErrorResponse>>({
+    queryKey: ['/form-config'],
+    queryFn: () => getFormConfig(),
+    enabled,
   });
 };

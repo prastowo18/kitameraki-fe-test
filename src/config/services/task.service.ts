@@ -9,6 +9,17 @@ export interface GetTaskParams extends PaginationParams {
   organizationId?: string;
 }
 
+export interface TaskRequest {
+  id?: string;
+  organizationId: string;
+  title: string;
+  description: string;
+  dueDate: Date;
+  priority: string;
+  status: string;
+  tags: string[];
+}
+
 export const getTasks = (params: GetTaskParams) =>
   ApiClient<PaginatedResources<ITask>>({
     method: 'GET',
@@ -21,6 +32,20 @@ export const getTask = (id: string, params: GetTaskParams) =>
     method: 'GET',
     url: `/api/tasks/${id}`,
     params,
+  });
+
+export const createTask = (data: TaskRequest) =>
+  ApiClient<JsonResource<ITask>>({
+    method: 'POST',
+    url: '/api/InsertTask',
+    data,
+  });
+
+export const updateTask = (data: TaskRequest) =>
+  ApiClient<JsonResource<ITask>>({
+    method: 'PUT',
+    url: '/api/UpdateTask',
+    data,
   });
 
 export const deleteTask = (params: GetTaskParams) =>

@@ -6,7 +6,7 @@ import { Navbar } from './Navbar';
 
 const useStyles = makeStyles({
   main: {
-    padding: '40px 35px',
+    padding: '30px 35px 40px 35px',
   },
 });
 

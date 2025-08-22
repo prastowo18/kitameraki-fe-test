@@ -1,11 +1,7 @@
-import { TaskTable } from '../components/Table';
+import { Content } from '../components/Content';
 
 const Home = () => {
-  return (
-    <div className="">
-      <TaskTable />
-    </div>
-  );
+  return <Content />;
 };
 
 export default Home;
